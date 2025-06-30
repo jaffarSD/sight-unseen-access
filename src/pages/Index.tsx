@@ -13,7 +13,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 
-const Index = () => {
+const IndexContent = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [verificationEmail, setVerificationEmail] = useState('');
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -107,39 +107,45 @@ const Index = () => {
   };
 
   return (
-    <AuthProvider>
-      <div className="min-h-screen bg-background text-foreground">
-        {/* Skip to main content link */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded z-50"
-        >
-          Skip to main content
-        </a>
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Skip to main content link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded z-50"
+      >
+        Skip to main content
+      </a>
 
-        <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
-        
-        <div id="main-content">
-          {renderCurrentPage()}
-        </div>
-
-        <AccessibilityControls
-          zoomLevel={zoomLevel}
-          onZoomIn={handleZoomIn}
-          onZoomOut={handleZoomOut}
-          highContrast={highContrast}
-          onToggleContrast={handleToggleContrast}
-          onReadPage={handleReadPage}
-        />
-
-        {/* Live region for announcements */}
-        <div
-          id="live-region"
-          className="sr-only"
-          aria-live="polite"
-          aria-atomic="true"
-        />
+      <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
+      
+      <div id="main-content">
+        {renderCurrentPage()}
       </div>
+
+      <AccessibilityControls
+        zoomLevel={zoomLevel}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        highContrast={highContrast}
+        onToggleContrast={handleToggleContrast}
+        onReadPage={handleReadPage}
+      />
+
+      {/* Live region for announcements */}
+      <div
+        id="live-region"
+        className="sr-only"
+        aria-live="polite"
+        aria-atomic="true"
+      />
+    </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <AuthProvider>
+      <IndexContent />
     </AuthProvider>
   );
 };
