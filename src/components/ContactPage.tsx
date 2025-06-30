@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { apiService } from '@/services/api';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -56,15 +57,31 @@ const ContactPage = () => {
     
     setIsSubmitting(true);
     
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const response = await apiService.submitContactForm(formData);
+      
+      if (response.status === 200 || response.status === 201) {
+        toast({
+          title: "Message sent successfully!",
+          description: "We'll get back to you as soon as possible."
+        });
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        toast({
+          title: "Failed to send message",
+          description: response.error || "Please try again later.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Message sent successfully!",
-        description: "We'll get back to you as soon as possible."
+        title: "Error sending message",
+        description: "An unexpected error occurred. Please try again later.",
+        variant: "destructive"
       });
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 1000);
+    }
+    
+    setIsSubmitting(false);
   };
 
   const handleChange = (field: string, value: string) => {

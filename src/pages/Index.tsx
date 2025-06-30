@@ -4,12 +4,18 @@ import Navigation from '@/components/Navigation';
 import HomePage from '@/components/HomePage';
 import ContactPage from '@/components/ContactPage';
 import ResourcesPage from '@/components/ResourcesPage';
+import LoginPage from '@/components/LoginPage';
+import RegisterPage from '@/components/RegisterPage';
+import EmailVerificationPage from '@/components/EmailVerificationPage';
+import ProfilePage from '@/components/ProfilePage';
 import AccessibilityControls from '@/components/AccessibilityControls';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState('home');
+  const [verificationEmail, setVerificationEmail] = useState('');
   const [zoomLevel, setZoomLevel] = useState(1);
   const [highContrast, setHighContrast] = useState(false);
   const { speak, stop, isSpeaking } = useTextToSpeech();
@@ -32,12 +38,16 @@ const Index = () => {
       return;
     }
 
-    // Get all text content from the main content area
     const mainContent = document.querySelector('main');
     if (mainContent) {
       const textContent = mainContent.innerText || mainContent.textContent || '';
       speak(textContent);
     }
+  };
+
+  const handleShowVerification = (email: string) => {
+    setVerificationEmail(email);
+    setCurrentPage('verify-email');
   };
 
   useKeyboardNavigation({
@@ -83,44 +93,54 @@ const Index = () => {
         return <ContactPage />;
       case 'resources':
         return <ResourcesPage />;
+      case 'login':
+        return <LoginPage onNavigate={setCurrentPage} />;
+      case 'register':
+        return <RegisterPage onNavigate={setCurrentPage} onShowVerification={handleShowVerification} />;
+      case 'verify-email':
+        return <EmailVerificationPage email={verificationEmail} onNavigate={setCurrentPage} />;
+      case 'profile':
+        return <ProfilePage onNavigate={setCurrentPage} />;
       default:
         return <HomePage onNavigate={setCurrentPage} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Skip to main content link */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded z-50"
-      >
-        Skip to main content
-      </a>
+    <AuthProvider>
+      <div className="min-h-screen bg-background text-foreground">
+        {/* Skip to main content link */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded z-50"
+        >
+          Skip to main content
+        </a>
 
-      <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
-      
-      <div id="main-content">
-        {renderCurrentPage()}
+        <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
+        
+        <div id="main-content">
+          {renderCurrentPage()}
+        </div>
+
+        <AccessibilityControls
+          zoomLevel={zoomLevel}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          highContrast={highContrast}
+          onToggleContrast={handleToggleContrast}
+          onReadPage={handleReadPage}
+        />
+
+        {/* Live region for announcements */}
+        <div
+          id="live-region"
+          className="sr-only"
+          aria-live="polite"
+          aria-atomic="true"
+        />
       </div>
-
-      <AccessibilityControls
-        zoomLevel={zoomLevel}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
-        highContrast={highContrast}
-        onToggleContrast={handleToggleContrast}
-        onReadPage={handleReadPage}
-      />
-
-      {/* Live region for announcements */}
-      <div
-        id="live-region"
-        className="sr-only"
-        aria-live="polite"
-        aria-atomic="true"
-      />
-    </div>
+    </AuthProvider>
   );
 };
 
